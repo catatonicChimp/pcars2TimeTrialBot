@@ -9,7 +9,7 @@ import yaml
 import os
 
 
-TOKEN = os.getenv(TOKEN, None)
+
 
 class PCarsLeaderBoard(object):
 
@@ -28,7 +28,7 @@ class PCarsLeaderBoard(object):
 
 
 	def loadYml(self):
-		with open('config.yml', 'r') as f:
+		with open('./python/config.yml', 'r') as f:
 			data = yaml.load(f, Loader=yaml.FullLoader)
 		return data
 
@@ -38,7 +38,7 @@ class PCarsLeaderBoard(object):
 		self.data['names'] = self.names
 		self.data['car'] = self.car
 		self.data['track'] = self.track
-		with open('config.yml', 'w') as f:
+		with open('./python/config.yml', 'w') as f:
 			yaml.dump(self.data, f, default_flow_style=False)
 
 	def scrapeData(self):
@@ -128,42 +128,41 @@ class Pcars2Bot(discord.Client):
 			return
 
 		if message.content == '!TimeTrial':
-			carSet = "Agajanian Watson Roadster"
-			trackSet = "Sportsland SUGO"
-			await self.sendTrackTimes(message, carSet, trackSet)
+			await message.channel.send("This is a test of new code formatting and docker setup")
 
 
-	async def sendTrackTimes(self, message, carSet, trackSet):
-			for key, value in trackDict.items():
-				if key == trackSet:
-					track = key
-					trackid = value
-			for key, value in carDict.items():
-				if key == carSet:
-					car = key
-					carid = value
-			times = updateTimes(carid, trackid)
-			await message.channel.send("Current Time Trial Results for {0} at {1}:\n".format(car, track))
-			for time in times["data"]:
-				localGap = 0
-				msg = """
-\n
-Username: @{0}
-Overal Rank: {1}
-Lap Time: {2}
-Gap to First Place: {3}
-Gap to Next Place ("Local"): {4}
-===============================================
-				""".format(time["user"], time["rank"], time["time"], time["gap"], localGap)
-				await message.channel.send(msg)
+# 	async def sendTrackTimes(self, message, carSet, trackSet):
+# 			for key, value in trackDict.items():
+# 				if key == trackSet:
+# 					track = key
+# 					trackid = value
+# 			for key, value in carDict.items():
+# 				if key == carSet:
+# 					car = key
+# 					carid = value
+# 			times = updateTimes(carid, trackid)
+# 			await message.channel.send("Current Time Trial Results for {0} at {1}:\n".format(car, track))
+# 			for time in times["data"]:
+# 				localGap = 0
+# 				msg = """
+# \n
+# Username: @{0}
+# Overal Rank: {1}
+# Lap Time: {2}
+# Gap to First Place: {3}
+# Gap to Next Place ("Local"): {4}
+# ===============================================
+# 				""".format(time["user"], time["rank"], time["time"], time["gap"], localGap)
+# 				await message.channel.send(msg)
 
 
 
 
 if __name__ == "__main__":
-	if TOKEN:
+	token = os.getenv("TOKEN", None)
+	if token:
 		m = PCarsLeaderBoard()
 		client = Pcars2Bot()
-		client.run(TOKEN)
+		client.run(token)
 	else:
 		print("No Token Found")

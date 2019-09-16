@@ -1,3 +1,4 @@
 PyYAML
 beautifulsoup4
 discord
+lxml
