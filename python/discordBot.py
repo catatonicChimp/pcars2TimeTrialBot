@@ -130,6 +130,10 @@ class Pcars2Bot(discord.Client):
 		if message.content == '!TimeTrial':
 			await message.channel.send("This is a test of new code formatting and docker setup")
 
+		if '!TimeTrialAddUser' in message.content:
+			userAdd = message.content.split(" ")[-1]
+			await message.channel.send("Adding User: {0}".format(userAdd))
+
 
 # 	async def sendTrackTimes(self, message, carSet, trackSet):
 # 			for key, value in trackDict.items():
