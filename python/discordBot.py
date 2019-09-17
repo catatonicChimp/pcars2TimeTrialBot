@@ -1,5 +1,6 @@
 # Work with Python 3.6
 import discord
+from discord.ext import commands
 import urllib
 import lxml
 from bs4 import BeautifulSoup
@@ -7,8 +8,9 @@ from bs4 import BeautifulSoup
 from datetime import time, timedelta
 import yaml
 import os
+import logging
 
-
+logging.basicConfig(level=logging.INFO)
 
 
 class PCarsLeaderBoard(object):
@@ -102,9 +104,16 @@ class PCarsLeaderBoard(object):
 	def addName(self, name):
 		if name not in self.names:
 			self.names.append(name)
+			return name
+		else:
+			return None
 
 	def removeName(self, name):
-		self.names.remove(name)
+		if name in self.names:
+			self.names.remove(name)
+			return name
+		else:
+			return None
 
 	def setCar(self, car):
 		self.car = car
@@ -115,58 +124,87 @@ class PCarsLeaderBoard(object):
 
 
 
+bot = commands.Bot(command_prefix="?", description="Time Trail Bot")
+
+@bot.command()
+async def getTimes(ctx):
+	"""
+	Get all Times for Current Track/Car
+	:param ctx:
+	:return:
+	"""
+	await ctx.send(m.getOurTimes())
+
+@bot.command()
+async def addUser(ctx, user):
+	"""
+	Add user to search list for track times.
+	:param ctx:
+	:param user:
+	:return:
+	"""
+	name = m.addName(user)
+	if name:
+		await ctx.send(f"Added {name} to User List")
+	else:
+		await ctx.send(f"Couldn't add {user}, it already exists")
 
 
+@bot.command()
+async def removeUser(ctx, user):
+	"""
+	Remove a User from the Search List
+	:param ctx:
+	:param user:
+	:return:
+	"""
+	name = m.removeName(user)
+	if name:
+		await ctx.send(f"Remove {name} from User List")
+	else:
+		await ctx.send(f"Couldn't find {user} in User List")
 
 
-class Pcars2Bot(discord.Client):
-	async def on_ready(self):
-		print("Logged on as", self.user)
+@bot.command()
+async def setTrack(ctx, track):
+	"""
+	Set the Track
+	:param ctx:
+	:param track:
+	:return:
+	"""
+	m.setTrack(track)
 
-	async def on_message(self, message):
-		if message.author == self.user:
-			return
+@bot.command()
+async def setCar(ctx, car):
+	"""
+	Set the Car
+	:param ctx:
+	:param track:
+	:return:
+	"""
+	m.setCar(car)
 
-		if message.content == '!TimeTrial':
-			await message.channel.send("This is a test of new code formatting and docker setup")
+@bot.command()
+async def saveData(ctx):
+	"""
+	Saves the Data to Disk
+	:param ctx:
+	:return:
+	"""
+	m.dumpYml()
 
-		if '!TimeTrialAddUser' in message.content:
-			userAdd = message.content.split(" ")[-1]
-			await message.channel.send("Adding User: {0}".format(userAdd))
-
-
-# 	async def sendTrackTimes(self, message, carSet, trackSet):
-# 			for key, value in trackDict.items():
-# 				if key == trackSet:
-# 					track = key
-# 					trackid = value
-# 			for key, value in carDict.items():
-# 				if key == carSet:
-# 					car = key
-# 					carid = value
-# 			times = updateTimes(carid, trackid)
-# 			await message.channel.send("Current Time Trial Results for {0} at {1}:\n".format(car, track))
-# 			for time in times["data"]:
-# 				localGap = 0
-# 				msg = """
-# \n
-# Username: @{0}
-# Overal Rank: {1}
-# Lap Time: {2}
-# Gap to First Place: {3}
-# Gap to Next Place ("Local"): {4}
-# ===============================================
-# 				""".format(time["user"], time["rank"], time["time"], time["gap"], localGap)
-# 				await message.channel.send(msg)
-
-
+@bot.event
+async def on_ready():
+	print(f"{bot.user.name} - {bot.user.id}")
+	print(discord.__version__)
+	print("Ready")
 
 
 if __name__ == "__main__":
 	token = os.getenv("TOKEN", None)
 	if token:
 		m = PCarsLeaderBoard()
-		client = Pcars2Bot()
-		client.run(token)
+		bot.run(token)
 	else:
 		print("No Token Found")
