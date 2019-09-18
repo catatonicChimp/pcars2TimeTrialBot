@@ -29,7 +29,7 @@ class PCarsLeaderBoard(object):
 		self.track = self.data['track']
 		self.carid = self.cars[self.car]
 		self.trackid = self.tracks[self.track]
-		self.leaderBoardData = self.scrapeData()
+		self.scrapeData()
 
 
 	def loadYml(self):
@@ -69,10 +69,25 @@ class PCarsLeaderBoard(object):
 				data = data.split("\n")
 				if len(data) > 15:
 					splitTimes = row.contents[7].attrs['title'].split("\n")
-					cleanRow = {"rank": data[0], "user": data[2].rstrip(), "vehicle": data[3], "time": self.cleanTime(data[6]), "sector1": self.cleanTime(splitTimes[0].split(": ")[1].strip()), "sector2": self.cleanTime(splitTimes[1].split(": ")[1].strip()), "sector3": self.cleanTime(splitTimes[2].split(": ")[1].strip()),
-								"gap": data[8], "uploaded": data[15]}
+					cleanRow = {"Rank": data[0], "Name": data[2].rstrip(), "Vehicle": data[3], "LapTime": self.cleanTime(data[6]), "Sector1": self.cleanTime(splitTimes[0].split(": ")[1].strip()), "Sector2": self.cleanTime(splitTimes[1].split(": ")[1].strip()), "Sector3": self.cleanTime(splitTimes[2].split(": ")[1].strip()),
+								"GlobalGap": data[8], "LocalGap": "", "Upload": data[15]}
 					ranks.append(cleanRow)
-		return ranks
+
+		self.leaderBoardData = ranks
+
+
+	def calculateGapTime(self, data):
+		fastestTime = data[0]["LapTime"]
+		print(fastestTime)
+		for n in range(len(data)):
+			if n == 0:
+				data[0]["LocalGap"] = 0.000
+				continue
+			data[n]["LocalGap"] = data[n]["LapTime"] - fastestTime
+
+		return data
+
+
 
 	def cleanTime(self, lapTime):
 		lapTimeValue = lapTime.split(":")
@@ -84,22 +99,23 @@ class PCarsLeaderBoard(object):
 
 	def getLeaderTime(self):
 		for rank in self.leaderBoardData:
-			if rank["rank"] == "1":
+			if rank["Rank"] == "1":
 				leaderTime = rank
 		return leaderTime
 
 	def getOurTimes(self):
+		self.scrapeData()
 		ourTimes = []
 		for rank in self.leaderBoardData:
-			if rank["user"] in self.names:
+			if rank["Name"] in self.names:
 				ourTimes.append(rank)
-
-		tableResult = self.makeTable(ourTimes)
+		data = self.calculateGapTime(ourTimes)
+		tableResult = self.makeTable(data)
 		return tableResult
 
 	def makeTable(self, data):
 		table = texttable.Texttable()
-		table.set_cols_align(["r", "l", "l", "c", "c", "c", "c", "c", "r"])
+		table.set_cols_align(["r", "l", "l", "c", "c", "c", "c", "c", "c", "r"])
 		table.header(data[0].keys())
 		for row in data:
 			table.add_row(row.values())
@@ -220,7 +236,7 @@ if __name__ == "__main__":
 	token = os.getenv("TOKEN", None)
 	if token:
 		m = PCarsLeaderBoard()
-		# m.makeTable()
+		m.getOurTimes()
 		bot.run(token)
 	else:
 		print("No Token Found")
