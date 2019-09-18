@@ -2,3 +2,6 @@ PyYAML
 beautifulsoup4
 discord
 lxml
+pandas
+numpy
+texttable

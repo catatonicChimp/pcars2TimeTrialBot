@@ -9,6 +9,9 @@ from datetime import time, timedelta
 import yaml
 import os
 import logging
+import pandas as pd
+import numpy
+import texttable
 
 logging.basicConfig(level=logging.INFO)
 
@@ -90,7 +93,19 @@ class PCarsLeaderBoard(object):
 		for rank in self.leaderBoardData:
 			if rank["user"] in self.names:
 				ourTimes.append(rank)
-		return ourTimes
+
+		tableResult = self.makeTable(ourTimes)
+		return tableResult
+
+	def makeTable(self, data):
+		table = texttable.Texttable()
+		table.set_cols_align(["r", "l", "l", "c", "c", "c", "c", "c", "r"])
+		table.header(data[0].keys())
+		for row in data:
+			table.add_row(row.values())
+		table.set_max_width(0)
+		return(f"```{table.draw()}```")
+
 
 	def getUserTimes(self, name):
 		for rank in self.leaderBoardData:
@@ -205,6 +220,7 @@ if __name__ == "__main__":
 	token = os.getenv("TOKEN", None)
 	if token:
 		m = PCarsLeaderBoard()
+		# m.makeTable()
 		bot.run(token)
 	else:
 		print("No Token Found")
