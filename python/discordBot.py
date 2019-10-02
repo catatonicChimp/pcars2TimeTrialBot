@@ -119,11 +119,12 @@ class PCarsLeaderBoard(object):
 		return(f"```{table.draw()}```")
 
 	def randomCar(self):
-		return random.choice(list(self.cars.keys()))
-
+		result = random.choice(list(self.cars.keys()))
+		return result
 
 	def randomTrack(self):
-		return random.choice(list(self.tracks.keys()))
+		result = random.choice(list(self.tracks.keys()))
+		return result
 
 
 	def getUserTimes(self, name):
@@ -229,7 +230,6 @@ async def randomCar(ctx):
 	"""
 	Get a Random Car
 	:param ctx:
-	:param car:
 	:return:
 	"""
 	await ctx.send(f"Random Car: {m.randomCar()}")
@@ -239,13 +239,12 @@ async def randomTrack(ctx):
 	"""
 	Get a Random Car
 	:param ctx:
-	:param car:
 	:return:
 	"""
 	await ctx.send(f"Random Track: {m.randomTrack()}")
 
 @bot.command()
-async def random(ctx):
+async def randomCarTrack(ctx):
 	"""
 	Get Random Car and Track
 	:param ctx:
