@@ -285,13 +285,13 @@ async def randomCarTrack(ctx):
 # 	m.dumpYml()
 
 @bot.command()
-async def timeTrailDetails(ctx):
+async def timeTrialDetails(ctx):
 	"""
 	Retrieve Current Car/Track for Time Trial
 	:param ctx:
 	:return:
 	"""
-	await ctx.send(f"Car: {m.car} \n Track: {m.track}")
+	await ctx.send(f"Car: {m.car}\nTrack: {m.track}")
 
 
 
