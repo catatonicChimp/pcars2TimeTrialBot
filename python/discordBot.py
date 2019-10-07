@@ -139,6 +139,7 @@ class PCarsLeaderBoard(object):
 	def addName(self, name):
 		if name not in self.names:
 			self.names.append(name)
+			self.dumpYml()
 			return name
 		else:
 			return None
@@ -146,18 +147,29 @@ class PCarsLeaderBoard(object):
 	def removeName(self, name):
 		if name in self.names:
 			self.names.remove(name)
+			self.dumpYml()
 			return name
 		else:
 			return None
 
 	def setCar(self, car):
-		self.car = car
+		if car in self.cars:
+			self.car = car
+			self.carid = self.cars[self.car]
+			self.dumpYml()
+			return 1
+		else:
+			return 0
+
 
 	def setTrack(self, track):
-		self.track = track
-
-
-
+		if track in self.tracks:
+			self.track = track
+			self.trackid = self.tracks[self.track]
+			self.dumpYml()
+			return 1
+		else:
+			return 0
 
 bot = commands.Bot(command_prefix="?", description="Time Trail Bot")
 
@@ -212,7 +224,11 @@ async def setTrack(ctx, track):
 	:param track:
 	:return:
 	"""
-	m.setTrack(track)
+	trackSet = m.setTrack(track)
+	if trackSet == 1:
+		await ctx.send(f"Track set to: {track}")
+	else:
+		await ctx.send(f"Invalid Track Name: {track}")
 
 @bot.command()
 @commands.has_permissions(administrator=True)
@@ -223,7 +239,12 @@ async def setCar(ctx, car):
 	:param car:
 	:return:
 	"""
-	m.setCar(car)
+	carSet = m.setCar(car)
+	if carSet == 1:
+		await ctx.send(f"Car set to: {car}")
+	else:
+		await ctx.send(f"Invalid Car Name: {car}")
+
 
 @bot.command()
 async def randomCar(ctx):
@@ -253,15 +274,26 @@ async def randomCarTrack(ctx):
 	await ctx.send(f"Random Car: {m.randomCar()}")
 	await ctx.send(f"Random Track: {m.randomTrack()}")
 
+# @bot.command()
+# @commands.has_permissions(administrator=True)
+# async def saveData(ctx):
+# 	"""
+# 	Saves the Data to Disk
+# 	:param ctx:
+# 	:return:
+# 	"""
+# 	m.dumpYml()
+
 @bot.command()
-@commands.has_permissions(administrator=True)
-async def saveData(ctx):
+async def timeTrailDetails(ctx):
 	"""
-	Saves the Data to Disk
+	Retrieve Current Car/Track for Time Trial
 	:param ctx:
 	:return:
 	"""
-	m.dumpYml()
+	await ctx.send(f"Car: {m.car} \n Track: {m.track}")
+
+
 
 @bot.event
 async def on_ready():
@@ -274,7 +306,6 @@ if __name__ == "__main__":
 	token = os.getenv("TOKEN", None)
 	if token:
 		m = PCarsLeaderBoard()
-		m.getOurTimes()
 		bot.run(token)
 	else:
 		print("No Token Found")
