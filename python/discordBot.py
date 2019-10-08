@@ -28,7 +28,7 @@ class PCarsLeaderBoard(object):
 		self.track = self.data['track']
 		self.carid = self.cars[self.car]
 		self.trackid = self.tracks[self.track]
-		self.scrapeData()
+		self.scrapeData(self.trackid, self.carid)
 
 
 	def loadYml(self):
@@ -45,8 +45,8 @@ class PCarsLeaderBoard(object):
 		with open('./python/config.yml', 'w') as f:
 			yaml.dump(self.data, f, default_flow_style=False)
 
-	def scrapeData(self):
-		urlBase = '{0}/leaderboard?track={1}&vehicle={2}'.format(self.PCARS2LEADERBOARD, self.trackid, self.carid)
+	def scrapeData(self, trackid, carid):
+		urlBase = '{0}/leaderboard?track={1}&vehicle={2}'.format(self.PCARS2LEADERBOARD, trackid, carid)
 		document = urllib.request.urlopen(urlBase)
 		soup = BeautifulSoup(document, "lxml")
 		pages = soup.find(lambda tag: tag.name == 'select' and tag.has_attr('id') and tag['id'] == "pager_top_select_page")
@@ -57,7 +57,6 @@ class PCarsLeaderBoard(object):
 		ranks = []
 		for page in pages:
 			url = "{0}&page={1}".format(urlBase, page)
-			print(url)
 			document = urllib.request.urlopen(url)
 			soup = BeautifulSoup(document, "lxml")
 			table = soup.find(lambda tag: tag.name == 'table' and tag.has_attr('id') and tag['id'] == "leaderboard")
@@ -73,7 +72,6 @@ class PCarsLeaderBoard(object):
 					ranks.append(cleanRow)
 
 		self.leaderBoardData = ranks
-
 
 	def calculateGapTime(self, data):
 		fastestTime = data[0]["LapTime"]
@@ -100,7 +98,26 @@ class PCarsLeaderBoard(object):
 		return leaderTime
 
 	def getOurTimes(self):
-		self.scrapeData()
+		self.scrapeData(self.trackid, self.carid)
+		ourTimes = []
+		for rank in self.leaderBoardData:
+			if rank["Name"] in self.names:
+				ourTimes.append(rank)
+		data = self.calculateGapTime(ourTimes)
+		tableResult = self.makeTable(data)
+		return tableResult
+
+
+	def getTimes(self, car, track):
+		if car in list(self.cars.keys()):
+			carid = self.cars[car]
+		else:
+			return f"Unknown Car: {car}"
+		if track in list(self.tracks.keys()):
+			trackid = self.tracks[track]
+		else:
+			return f"Unknown Track: {track}"
+		self.scrapeData(trackid, carid)
 		ourTimes = []
 		for rank in self.leaderBoardData:
 			if rank["Name"] in self.names:
@@ -181,6 +198,17 @@ async def getTimes(ctx):
 	:return:
 	"""
 	await ctx.send(m.getOurTimes())
+
+@bot.command()
+async def getCustomTimes(ctx, car, track):
+	"""
+	get Times for specified car and track
+	:param ctx:
+	:param car:
+	:param track:
+	:return:
+	"""
+	await ctx.send(m.getTimes(car, track))
 
 @bot.command()
 @commands.has_permissions(administrator=True)
@@ -293,6 +321,8 @@ async def timeTrialDetails(ctx):
 	"""
 	await ctx.send(f"Car: {m.car}\nTrack: {m.track}")
 
+
+#TODO might be better to have a search/find command for listing all cars/tracks, we might be hitting a max character limit. 
 @bot.command()
 async def listAllCars(ctx):
 	"""
