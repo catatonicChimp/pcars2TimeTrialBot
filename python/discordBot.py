@@ -293,7 +293,23 @@ async def timeTrialDetails(ctx):
 	"""
 	await ctx.send(f"Car: {m.car}\nTrack: {m.track}")
 
+@bot.command()
+async def listAllCars(ctx):
+	"""
+	List all available cars in Project Cars 2
+	:param ctx:
+	:return:
+	"""
+	await ctx.send(f"All cars available in Project Cars 2:\n\n{m.cars}")
 
+@bot.command()
+async def listAllTracks(ctx):
+	"""
+	List all available tracks in Project Cars 2
+	:param ctx:
+	:return:
+	"""
+	await ctx.send(f"All tracks available in Project Cars 2:\n\n{m.tracks}")
 
 @bot.event
 async def on_ready():
