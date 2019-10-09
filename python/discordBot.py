@@ -322,7 +322,7 @@ async def timeTrialDetails(ctx):
 	await ctx.send(f"Car: {m.car}\nTrack: {m.track}")
 
 
-#TODO might be better to have a search/find command for listing all cars/tracks, we might be hitting a max character limit. 
+#TODO might be better to have a search/find command for listing all cars/tracks, we might be hitting a max character limit.
 @bot.command()
 async def listAllCars(ctx):
 	"""
@@ -330,7 +330,9 @@ async def listAllCars(ctx):
 	:param ctx:
 	:return:
 	"""
-	await ctx.send(f"All cars available in Project Cars 2:\n\n{m.cars}")
+	cars = "\n".join(list(m.cars.keys()))
+	await ctx.send(f"All cars available in Project Cars 2:\n{cars}")
+
 
 @bot.command()
 async def listAllTracks(ctx):
@@ -339,7 +341,8 @@ async def listAllTracks(ctx):
 	:param ctx:
 	:return:
 	"""
-	await ctx.send(f"All tracks available in Project Cars 2:\n\n{m.tracks}")
+	tracks = "\n".join(list(m.tracks.keys()))
+	await ctx.send(f"All tracks available in Project Cars 2:\n{tracks}")
 
 @bot.event
 async def on_ready():
