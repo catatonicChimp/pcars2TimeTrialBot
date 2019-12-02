@@ -1,4 +1,4 @@
-car: Ford RS200 Evolution Group B
+car: Lotus Type 98T Renault Turbo
 cars:
   Acura NSX: 728234598
   Acura NSX GT3: 3416883430
@@ -240,7 +240,7 @@ names:
 - YeeHarr
 - BenqEnobe
 - superdd
-track: Mazda Raceway Laguna Seca
+track: Autodromo Internazionale Enzo E Dino Ferrari Imola
 tracks:
   24 Hours of Le Mans Circuit: 1740968730
   Autodromo Internazionale Enzo E Dino Ferrari Imola: 920145926
